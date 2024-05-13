@@ -17,16 +17,16 @@ public class Game {
     private Board player1Board, player2Board; // Tabuleiro dos jogadores
     private Board initialBoard1, initialBoard2; // Guarda o tabuleiro inicial
     private Board visiblePlayer1Board, visiblePlayer2Board; // Tabuleiros que irão aparecer durante o jogo
-    private boolean finished = false; // Encerra o jogo
 
     // Inicia o jogo
     public Game() {
         clear(); // Limpa a tela
         setPlayers(); // Cria os jogadores
-        skipRows(1); // Pula uma linha
+        skipRows(1); // Pula 1 linha
         setBoards(); // Cria os tabuleiros
+        clear(); // Limpa a tela
         start(); // Começa e encerra o jogo
-        skipRows(1); // Pula linha
+        skipRows(1); // Pula 1 linha
         showInitialBoards(); // Mostra onde estavam os navios
         skipRows(1); // Pula 1 linha
         showDestroyedBoards(); // Mostra os barcos destruídos por cada jogador
@@ -34,25 +34,21 @@ public class Game {
 
     // Começa e encerra o jogo
     public void start() {
-        while (!finished) {
+        for (;;) {
             playRound(player1, player2, player2Board, visiblePlayer2Board);
-            if (player2.getScore() >= maxScore) {
-                finished = true;
-                break;
-            }
+            if (player1.getScore() == maxScore) break;
+            
             playRound(player2, player1, player1Board, visiblePlayer1Board);
-            if (player1.getScore() >= maxScore) {
-                finished = true;
-            }
+            if (player2.getScore() == maxScore) break;
         }
 
         clear();
         System.out.println("O JOGO ACABOU!");
-        if (player1.getScore() >= player2.getScore()) {
+        if (player1.getScore() > player2.getScore()) {
             System.out.println(player1.getName() + " VENCEU!");
-        } else if (player2.getScore() >= player1.getScore()){
-            System.out.println(player2.getName() + " VENCEU!");
-        } else System.out.println("EMPATE!");
+        } else if (player2.getScore() > player1.getScore()) System.out.println(player2.getName() + " VENCEU!");
+
+        skipRows(1);
         saveLog("player1Log", player1);
         saveLog("player2Log", player2);
     }
@@ -124,13 +120,12 @@ public class Game {
                 visibleBoard.markPosition(row, col, 'Y');
                 break;
             } else {
-                System.out.println("Acertou um barco!");
                 String ship = getShip(defenderBoard, row, col);
-                System.out.println(ship);
+                System.out.println("Acertou um "+ship+"!");
                 defenderBoard.markPosition(row, col, 'X');
                 visibleBoard.markPosition(row, col, 'X');
                 attacker.increaseScore();
-                defender.recordDestroyedShip(ship);
+                attacker.recordDestroyedShip(ship);
                 break;
             }
         }
@@ -139,7 +134,6 @@ public class Game {
     // Diz qual barco está em uma certa posição de um tabuleiro
     public String getShip(Board board, int row, int col) {
         char type = board.getPosition(row, col);
-        System.out.println(type);
         if (type == 'F') {
             return "Fragata";
         } else if (type == 'B') {

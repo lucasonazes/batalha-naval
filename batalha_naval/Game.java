@@ -25,13 +25,11 @@ public class Game {
         setPlayers(); // Cria os jogadores
         skipRows(1); // Pula uma linha
         setBoards(); // Cria os tabuleiros
-        player1Board.showBoard();
-        player2Board.showBoard();
         start(); // Começa e encerra o jogo
         skipRows(1); // Pula linha
-        showInitialBoards();
-        skipRows(1);
-        showDestroyedBoards();
+        showInitialBoards(); // Mostra onde estavam os navios
+        skipRows(1); // Pula 1 linha
+        showDestroyedBoards(); // Mostra os barcos destruídos por cada jogador
     }
 
     // Começa e encerra o jogo
@@ -76,22 +74,38 @@ public class Game {
     // Uma rodada do jogo
     public void playRound(Player attacker, Player defender, Board defenderBoard, Board visibleBoard) {
         for (;;) {
-            visibleBoard.showBoard();
             int row = 0;
             int col = 0;
 
             for (;;) {
                 boolean ok = false;
                 try {
-                    System.out.println(attacker.getName()+", digite a coordenada y do ataque (linha): ");
-                    row = scanner.nextInt();
+                    visibleBoard.showBoard();
+                    for (;;) {
+                        System.out.println(attacker.getName()+", digite a coordenada y do ataque (linha): ");
+                        row = scanner.nextInt();
+                        if (row < 0 || row >= visibleBoard.getRows()) {
+                            clear();
+                            System.out.println("Coordenadas inválidas!\n");
+                            visibleBoard.showBoard();
+                        } else break;
+                    }
 
-                    System.out.println(attacker.getName()+", digite a coordenada x do ataque (coluna): ");
-                    col = scanner.nextInt();
+                    for (;;) {
+                        System.out.println(attacker.getName()+", digite a coordenada x do ataque (coluna): ");
+                        col = scanner.nextInt();
+                        if (col < 0 || col >= visibleBoard.getCols()) {
+                            clear();
+                            System.out.println("Coordenadas inválidas!\n");
+                            visibleBoard.showBoard();
+                        } else break;
+                    }
+
                     ok = true;
                 } catch (InputMismatchException e) {
                     clear();
                     System.out.println("Digite um valor numérico");
+                    scanner.nextLine();
                     skipRows(1);
                 }
                 if(ok) break;
@@ -122,6 +136,7 @@ public class Game {
         }
     }
 
+    // Diz qual barco está em uma certa posição de um tabuleiro
     public String getShip(Board board, int row, int col) {
         char type = board.getPosition(row, col);
         System.out.println(type);
@@ -162,9 +177,18 @@ public class Game {
         this.visiblePlayer2Board = new Board(rows, cols, player2.getName()); // Cria o tabuleiro visível do jogador 2
         placeShips(player1, player1Board); // Coloca os barcos no tabuleiro do jogador 1
         placeShips(player2, player2Board); // Coloca os barcos no tabuleiro do jogador 2
-        this.initialBoard1 = player1Board; // Guardar o tabuleiro inicial do jogador 1
-        this.initialBoard2 = player2Board; // Guardar o tabuleiro inicial do jogador 2
-    
+        copyBoards(player1Board, initialBoard1 = new Board(rows, cols, player1.getName())); // Copia os valores do tabuleiro do jogador 1 para salvar as informações iniciais
+        copyBoards(player2Board, initialBoard2 = new Board(rows, cols, player2.getName())); // Copia os valores do tabuleiro do jogador 2 para salvar as informações iniciais
+    }
+
+    // Copiar um tabuleiro
+    public void copyBoards(Board origin, Board copy) {
+        for (int i = 0; i < origin.getRows(); i++) {
+            for (int j = 0; j < origin.getCols(); j++) {
+                char mark = origin.getPosition(i, j);
+                copy.markPosition(i, j, mark);
+            }
+        }
     }
     
     // Cria os jogadores
@@ -185,6 +209,7 @@ public class Game {
             } catch (InputMismatchException e) {
                 clear();
                 System.out.println("O nome deve ser um texto");
+                scanner.nextLine();
                 skipRows(1);
             }
             if(ok) break;
@@ -216,6 +241,7 @@ public class Game {
             } catch (InputMismatchException e) {
                 clear();
                 System.out.println("Digite um valor numérico");
+                scanner.nextLine();
                 skipRows(1);
             }
             if(ok) break;

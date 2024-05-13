@@ -1,0 +1,3 @@
+javac Main.java Game.java Board.java Ship.java Player.java AircraftCarrier.java Destroyer.java Frigate.java Submarine.java Boat.java
+
+java Main.java Game.java Board.java Ship.java Player.java AircraftCarrier.java Destroyer.java Frigate.java Submarine.java Boat.java
